@@ -1,0 +1,14 @@
+﻿services:
+  aarambh:
+    image: ghcr.io/666ghj/aarambh:latest
+    # åŠ é€Ÿé•œåƒï¼ˆå¦‚æ‹‰å–ç¼“æ…¢å¯æ›¿æ¢ä¸Šæ–¹åœ°å€ï¼‰
+    # image: ghcr.nju.edu.cn/666ghj/aarambh:latest
+    container_name: aarambh
+    env_file:
+      - .env
+    ports:
+      - "3000:3000"
+      - "5001:5001"
+    restart: unless-stopped
+    volumes:
+      - ./backend/uploads:/app/backend/uploads
