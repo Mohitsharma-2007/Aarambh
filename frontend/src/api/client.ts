@@ -2,6 +2,25 @@ import axios from "axios";
 
 // Finance API - Port 8000
 export const FinanceAPI = {
+  async getStockProfile(ticker: string) {
+    const response = await axios.get(`http://localhost:8000/api/v1/market/profile/${ticker}`);
+    return response.data;
+  },
+  async getStockResearch(ticker: string) {
+    const response = await axios.get(`http://localhost:8000/api/v1/market/research/${ticker}`);
+    return response.data;
+  },
+  async getStockHistory(ticker: string, range?: string) {
+    const url = range
+      ? `http://localhost:8000/api/v1/market/history/${ticker}?range=${range}`
+      : `http://localhost:8000/api/v1/market/history/${ticker}`;
+    const response = await axios.get(url);
+    return response.data;
+  },
+  async getSignals() {
+    const response = await axios.get("http://localhost:8000/api/v1/market/signals");
+    return response.data;
+  },
   // Google Finance APIs
   async getStockQuote(ticker: string, exchange?: string) {
     const url = exchange
@@ -976,12 +995,12 @@ export const AIQueryAPI = {
     return response.data;
   },
 
-  async sendChatMessage(data: { 
-    message: string; 
-    conversation_id?: string; 
-    provider?: string; 
-    model?: string; 
-    tools?: string[] 
+  async sendChatMessage(data: {
+    message: string;
+    conversation_id?: string;
+    provider?: string;
+    model?: string;
+    tools?: string[]
   }) {
     const response = await axios.post("http://localhost:8000/api/v1/ai/chat", {
       message: data.message,

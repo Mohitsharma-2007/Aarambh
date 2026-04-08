@@ -19,6 +19,7 @@ venv.bak/
 *.key
 *.cert
 *.cert.pem
+.env.example
 # (Any API keys, passwords, or tokens should be here)
 
 # Build Outputs

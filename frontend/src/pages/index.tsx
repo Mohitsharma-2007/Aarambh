@@ -3,7 +3,7 @@ import { lazy, Suspense } from 'react'
 // Lazy load essential pages only
 export const NewsFeed = lazy(() => import('./NewsFeed'))
 export const Economy = lazy(() => import('./Economy'))
-export const Finance = lazy(() => import('./Finance'))
+export const Finance = lazy(() => import('./FinancePage'))
 export const AIQuery = lazy(() => import('./AIQuery'))
 export const GlobeView = lazy(() => import('./GlobeView'))
 

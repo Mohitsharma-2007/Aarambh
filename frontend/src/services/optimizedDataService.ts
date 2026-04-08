@@ -1,6 +1,6 @@
-"""
+/*
 AARAMBH Frontend Data Service v2.0 — Optimized Data Loading
-===========================================================
+-----------------------------------------------------------
 
 Features:
 - Intelligent caching with IndexedDB
@@ -9,7 +9,7 @@ Features:
 - Background refresh (stale-while-revalidate pattern)
 - Error retry with exponential backoff
 - Data prefetching for predicted user actions
-"""
+*/
 
 import axios, { AxiosRequestConfig, AxiosError } from 'axios';
 import { localDB } from './localDB';
@@ -106,7 +106,7 @@ class OptimizedDataService {
 
     // 3. Make API request
     const requestPromise = this.makeRequest<T>(endpoint, cacheKey, ttl);
-    
+
     if (dedupe) {
       pendingRequests.set(cacheKey, requestPromise);
       requestPromise.finally(() => pendingRequests.delete(cacheKey));
@@ -135,9 +135,19 @@ class OptimizedDataService {
     }
   }
 
+  private getStoreName(key: string): string {
+    if (key.startsWith('news')) return 'news';
+    if (key.startsWith('research')) return 'research';
+    if (key.startsWith('signals')) return 'signals';
+    if (key.startsWith('entities')) return 'entities';
+    if (key.startsWith('user')) return 'user_data';
+    return 'market_data';
+  }
+
   private async getCachedData<T>(key: string, maxAge: number): Promise<T | null> {
     try {
-      const entry = await localDB.get<T>(key);
+      const storeName = this.getStoreName(key);
+      const entry = await localDB.get<T>(storeName, key);
       if (!entry) return null;
 
       const isValid = Date.now() - (entry as any)._timestamp < maxAge;
@@ -149,7 +159,8 @@ class OptimizedDataService {
 
   private async setCachedData(key: string, data: any, ttl: number): Promise<void> {
     try {
-      await localDB.set(key, { ...data, _timestamp: Date.now() }, Math.ceil(ttl / 60000));
+      const storeName = this.getStoreName(key);
+      await localDB.set(storeName, key, { ...data, _timestamp: Date.now() }, Math.ceil(ttl / 60000));
     } catch (e) {
       console.error('Cache save error:', e);
     }
@@ -163,7 +174,7 @@ class OptimizedDataService {
 
   private queueBackgroundRefresh(cacheKey: string, endpoint: string): void {
     refreshQueue.add(endpoint);
-    
+
     if (!refreshTimer) {
       refreshTimer = setTimeout(() => this.processRefreshQueue(), 1000);
     }
@@ -217,7 +228,7 @@ class OptimizedDataService {
    */
   async getMultipleQuotes(tickers: string[]) {
     const uniqueTickers = [...new Set(tickers)];
-    
+
     const results = await Promise.all(
       uniqueTickers.map(ticker =>
         this.getStockQuote(ticker).catch(e => ({
@@ -327,7 +338,8 @@ class OptimizedDataService {
    * Clear all caches
    */
   async clearCache(): Promise<void> {
-    await localDB.clear();
+    const stores = ['market_data', 'news', 'signals', 'research', 'entities', 'user_data'];
+    await Promise.all(stores.map(store => localDB.clear(store).catch(() => { })));
   }
 }
 
@@ -353,7 +365,7 @@ export function useData<T>(
   options: UseDataOptions<T> = {}
 ) {
   const { initialData, refreshInterval, onError, enabled = true } = options;
-  
+
   const [data, setData] = useState<T | undefined>(initialData);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
@@ -361,10 +373,10 @@ export function useData<T>(
 
   const fetch = useCallback(async () => {
     if (!enabled) return;
-    
+
     setLoading(true);
     setError(null);
-    
+
     try {
       const result = await fetchFn();
       setData(result);
@@ -379,11 +391,11 @@ export function useData<T>(
 
   useEffect(() => {
     fetch();
-    
+
     if (refreshInterval) {
       intervalRef.current = setInterval(fetch, refreshInterval);
     }
-    
+
     return () => {
       if (intervalRef.current) {
         clearInterval(intervalRef.current);

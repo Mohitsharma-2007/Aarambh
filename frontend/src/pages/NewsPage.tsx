@@ -172,7 +172,7 @@ function DarkButton({
   size = "md",
   disabled = false
 }: {
-  children: React.ReactNode;
+  children?: React.ReactNode;
   onClick?: () => void;
   active?: boolean;
   className?: string;
@@ -222,7 +222,7 @@ function DarkButton({
       )}
       style={{
         ...variantStyles[variant],
-        fontFamily: DARK_THEME.font.body,
+        fontFamily: DARK_THEME.font.primary,
         opacity: disabled ? 0.5 : 1,
         cursor: disabled ? "not-allowed" : "pointer",
       }}
@@ -641,7 +641,7 @@ export default function NewsPage() {
                   background: DARK_THEME.colors.bgCard,
                   borderColor: DARK_THEME.colors.borderDefault,
                   color: DARK_THEME.colors.textPrimary,
-                  fontFamily: DARK_THEME.font.body,
+                  fontFamily: DARK_THEME.font.primary,
                   boxShadow: DARK_THEME.shadows.card,
                 }}
               />
